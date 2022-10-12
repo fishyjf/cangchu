@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ The MIT License (MIT)
+  ~
+  ~ Copyright (c) 2014-2016 abel533@gmail.com
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in
+  ~ all copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  ~ THE SOFTWARE.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="tk.mybatis.springboot.mapper.GoodsMapper">
+
+    <resultMap id="BaseResultMap" type="tk.mybatis.springboot.model.entity.Goods">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        id, name
+    </sql>
+
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from t_goods
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+
+    <insert id="insert" parameterType="tk.mybatis.springboot.model.entity.Goods">
+        insert into t_goods (id, name)
+        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR})
+    </insert>
+
+
+    <insert id="insertDynamic" parameterType="tk.mybatis.springboot.model.entity.Goods">
+        insert into t_goods
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="updateDynamic" parameterType="tk.mybatis.springboot.model.entity.Goods">
+        update t_goods
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+
+    <update id="update" parameterType="tk.mybatis.springboot.model.entity.Goods">
+        update t_goods
+        set name = #{name,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from  t_goods
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+
+    <sql id="findPageWithWhere">
+        <where> 1=1
+            <if test="id != null" >
+                and id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="name != null and name != ''" >
+                and name = #{name,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </sql>
+
+
+    <select id="findPageWithResult" parameterType="tk.mybatis.springboot.model.dto.GoodsDTO" resultType="tk.mybatis.springboot.model.bo.GoodsBO">
+        select
+        g.id, g.name
+        , ifnull(i.number, 0) num
+        from  t_goods g left join t_inventory i on g.id = i.goods_id
+        <where> 1=1
+            <if test="id != null" >
+                and g.id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="name != null and name != ''" >
+                and g.name = #{name,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findPageWithCount" parameterType="tk.mybatis.springboot.model.dto.GoodsDTO" resultType="Integer">
+        select count(1)
+        from t_goods
+        <include refid="findPageWithWhere" />
+    </select>
+
+</mapper>
